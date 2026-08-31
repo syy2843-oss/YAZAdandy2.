@@ -1,0 +1,173 @@
+/* 관리자 페이지 전용 스타일 - style.css의 색상 토큰을 그대로 사용 */
+
+.admin-wrap {
+  min-height: 100dvh;
+  padding: 28px 20px 60px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+/* ---- 로그인 화면 ---- */
+.login-card {
+  max-width: 360px;
+  margin: 80px auto 0;
+  background: var(--paper-card);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 32px 24px;
+}
+
+/* ---- 상단 헤더 ---- */
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.admin-title {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.admin-header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-small {
+  padding: 8px 14px;
+  font-size: 13px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-small:hover { background: var(--paper); }
+
+/* ---- 요약 카드 ---- */
+.summary-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.summary-card {
+  background: var(--paper-card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 16px;
+  text-align: center;
+}
+
+.summary-num {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.summary-num.accent { color: var(--accent); }
+.summary-num.alert { color: var(--alert); }
+
+.summary-label {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+/* ---- 필터 바 ---- */
+.filter-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 16px;
+  background: var(--paper-card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+
+.filter-bar input[type="date"],
+.filter-bar input[type="text"] {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.filter-bar select {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+/* ---- 테이블 ---- */
+.table-wrap {
+  background: var(--paper-card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow-x: auto;
+}
+
+table.log-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.log-table th, .log-table td {
+  padding: 10px 12px;
+  text-align: left;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--line);
+}
+
+.log-table th {
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 12px;
+  background: var(--paper);
+}
+
+.log-table tr:last-child td { border-bottom: none; }
+
+.badge {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge.present { background: var(--accent-soft); color: var(--accent); }
+.badge.not-recognized { background: var(--alert-soft); color: var(--alert); }
+.badge.pending { background: #eee; color: var(--muted); }
+
+.empty-row {
+  text-align: center;
+  color: var(--muted);
+  padding: 30px 0;
+}
+
+@media (max-width: 640px) {
+  .summary-row { grid-template-columns: repeat(2, 1fr); }
+}

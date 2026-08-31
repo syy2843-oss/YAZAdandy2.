@@ -1,0 +1,646 @@
+/* =========================================
+   자습 출석 시스템 - 학생 페이지 스타일
+   컨셉: 차분하게 집중하는 자습실의 기록부
+   ========================================= */
+
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css");
+@import url("https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap");
+
+:root {
+  --ink: #14213d;         /* 진한 잉크 남색 - 헤더/포커스 */
+  --ink-soft: #2c3a5e;
+  --paper: #faf9f6;       /* 은은한 종이색 배경 (크림톤 아님) */
+  --paper-card: #ffffff;
+  --accent: #2f6f4f;      /* 짙은 숲녹색 - 완료/성공 */
+  --accent-soft: #e6efe9;
+  --alert: #a5322a;       /* 브릭레드 - 미인정/오류 */
+  --alert-soft: #f4e6e4;
+  --muted: #6b7280;
+  --line: #e4e1d9;
+
+  --font-body: "PretendardVariable", "Pretendard", -apple-system, sans-serif;
+  --font-display: "Newsreader", "PretendardVariable", serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+.screen {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+}
+
+.card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--paper-card);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 32px 24px 28px;
+  box-shadow: 0 1px 2px rgba(20, 33, 61, 0.04), 0 12px 32px rgba(20, 33, 61, 0.06);
+}
+
+.eyebrow {
+  margin: 0 0 4px;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.loading-text {
+  margin: 40px 0;
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* ---- 학번 입력 화면 ---- */
+.title {
+  margin: 4px 0 20px;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.field-label {
+  display: block;
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.text-input {
+  width: 100%;
+  font-family: var(--font-display);
+  font-size: 28px;
+  letter-spacing: 0.04em;
+  padding: 14px 12px;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  background: var(--paper);
+  color: var(--ink);
+  text-align: center;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.text-input:focus {
+  border-color: var(--ink);
+}
+
+.btn {
+  display: block;
+  width: 100%;
+  padding: 14px 16px;
+  margin-top: 16px;
+  border: none;
+  border-radius: 12px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.05s ease;
+}
+
+.btn:active { transform: scale(0.98); }
+
+.btn-primary {
+  background: var(--ink);
+  color: #fff;
+}
+
+.btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--muted);
+  font-weight: 500;
+  font-size: 14px;
+  padding: 10px 8px;
+  margin-top: 8px;
+}
+
+.error-text {
+  margin-top: 12px;
+  font-size: 14px;
+  color: var(--alert);
+  text-align: center;
+}
+
+/* ---- 학생 확인 화면 ---- */
+.confirm-block {
+  text-align: center;
+  padding: 12px 0 8px;
+}
+
+.confirm-name {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 4px 0 2px;
+}
+
+.confirm-id {
+  font-size: 14px;
+  color: var(--muted);
+  letter-spacing: 0.03em;
+}
+
+/* ---- 결과 화면 (입실/퇴실) ---- */
+.status-pill {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 5px 12px;
+  border-radius: 999px;
+  margin-bottom: 16px;
+}
+
+.status-pill.ok {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.status-pill.fail {
+  background: var(--alert-soft);
+  color: var(--alert);
+}
+
+.result-name {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 2px;
+}
+
+.result-id {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 18px;
+}
+
+.time-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+}
+
+.time-row:last-of-type {
+  border-bottom: 1px solid var(--line);
+}
+
+.time-label {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.time-value {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+/* ---- 참여부 진행 사다리 (시그니처 요소) ---- */
+.ladder {
+  margin: 22px 0 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.ladder-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 0;
+}
+
+.ladder-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--line);
+  flex-shrink: 0;
+}
+
+.ladder-step.reached .ladder-dot {
+  background: var(--accent);
+}
+
+.ladder-label {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.ladder-step.reached .ladder-label {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.ladder-threshold {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.final-status {
+  margin-top: 20px;
+  text-align: center;
+  padding: 14px 0;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.final-status.ok {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.final-status.fail {
+  background: var(--alert-soft);
+  color: var(--alert);
+}
+
+/* ---- 대기/안내 화면 ---- */
+.idle-block {
+  text-align: center;
+  padding: 16px 0 4px;
+}
+
+.idle-icon {
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+.idle-text {
+  font-size: 15px;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+
+.idle-sub {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.footer-note {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* ---- 현재 상태 화면 (입실 전 / 자습 중) ---- */
+.status-header {
+  text-align: center;
+  padding: 6px 0 4px;
+}
+
+.status-id {
+  font-size: 13px;
+  color: var(--muted);
+  letter-spacing: 0.03em;
+}
+
+.status-name {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 2px 0 18px;
+}
+
+.status-current-label {
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+
+.status-current-value {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 22px;
+}
+
+.status-current-value.waiting { color: var(--muted); }
+.status-current-value.studying { color: var(--accent); }
+
+.status-checkin-time {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: -14px;
+  margin-bottom: 22px;
+}
+
+.btn-action {
+  display: block;
+  width: 100%;
+  padding: 16px 16px;
+  border: none;
+  border-radius: 14px;
+  font-family: var(--font-body);
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.05s ease;
+}
+
+.btn-action:active { transform: scale(0.98); }
+.btn-action:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-action.checkin {
+  background: var(--ink);
+  color: #fff;
+}
+
+.btn-action.checkout {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* ---- 이미 퇴실 완료(오늘 종료) 안내 ---- */
+.done-note {
+  margin-top: 18px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+  background: var(--paper);
+  border-radius: 10px;
+  padding: 10px;
+}
+
+/* ---- 부별 출석 현황 리스트 ---- */
+.part-list {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.part-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+  background: var(--paper-card);
+}
+
+.part-row:last-child {
+  border-bottom: none;
+}
+
+.part-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--line);
+  flex-shrink: 0;
+}
+
+.part-dot.done { background: var(--accent); }
+.part-dot.studying { background: #d9a441; }
+.part-dot.available { background: var(--ink); }
+.part-dot.none { background: var(--line); }
+.part-dot.fail { background: var(--alert); }
+
+.part-name {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  width: 32px;
+}
+
+.part-status-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.part-status-label.done { color: var(--accent); }
+.part-status-label.studying { color: #b8842f; }
+.part-status-label.available { color: var(--ink); }
+.part-status-label.fail { color: var(--alert); }
+
+.part-schedule {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ---- 현재 진행 중 부의 입실/퇴실 액션 ---- */
+.action-block {
+  margin: 20px 0 6px;
+  text-align: center;
+}
+
+.action-current-label {
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.action-current-part {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 16px;
+}
+
+/* =========================================
+   관리자 페이지 스타일
+   ========================================= */
+
+.admin-screen {
+  min-height: 100dvh;
+  padding: 24px 16px 60px;
+  display: flex;
+  justify-content: center;
+}
+
+.admin-card {
+  width: 100%;
+  max-width: 920px;
+  background: var(--paper-card);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 28px 24px 32px;
+  box-shadow: 0 1px 2px rgba(20, 33, 61, 0.04), 0 12px 32px rgba(20, 33, 61, 0.06);
+}
+
+.admin-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 4px 0 20px;
+}
+
+.admin-pw-input {
+  max-width: 220px;
+}
+
+.admin-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.admin-logout {
+  margin-top: 4px;
+}
+
+.admin-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px 16px;
+  align-items: end;
+  margin-bottom: 20px;
+}
+
+.date-input,
+.admin-search-input,
+.filter-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 14px;
+  outline: none;
+}
+
+.date-input:focus,
+.admin-search-input:focus,
+.filter-select:focus {
+  border-color: var(--ink);
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.summary-box {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 10px;
+  text-align: center;
+}
+
+.summary-value {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.summary-label {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.log-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.log-table th {
+  text-align: left;
+  background: var(--paper);
+  color: var(--muted);
+  font-weight: 600;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+.log-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+.log-table tr:last-child td {
+  border-bottom: none;
+}
+
+.table-empty {
+  padding: 24px 12px;
+  text-align: center;
+  color: var(--muted);
+}
+
+.tag {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.tag-ok { background: var(--accent-soft); color: var(--accent); }
+.tag-fail { background: var(--alert-soft); color: var(--alert); }
+.tag-pending { background: #f0edE4; color: var(--muted); }
+
+.admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.admin-action-btn {
+  width: auto;
+  margin-top: 0;
+  padding: 10px 18px;
+}
+
+.admin-sheet-link {
+  margin-top: 0;
+  text-decoration: none;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  padding: 9px 16px;
+  font-size: 14px;
+}
