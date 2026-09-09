@@ -9,7 +9,7 @@
 :root {
   --ink: #14213d;         /* 진한 잉크 남색 - 헤더/포커스 */
   --ink-soft: #2c3a5e;
-  --paper: #faf9f6;       /* 은은한 종이색 배경 (크림톤 아님) */
+  --paper: #faf9f6;       /* 은은한 종이색 배경 */
   --paper-card: #ffffff;
   --accent: #2f6f4f;      /* 짙은 숲녹색 - 완료/성공 */
   --accent-soft: #e6efe9;
@@ -24,6 +24,13 @@
 
 * { box-sizing: border-box; }
 
+html {
+  /* 삼성 인터넷 등 일부 모바일 브라우저가 "웹사이트 글자 크기" 설정으로
+     페이지 글자를 강제로 확대해서 레이아웃이 깨지는 것을 방지 */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 html, body {
   margin: 0;
   padding: 0;
@@ -36,8 +43,10 @@ html, body {
 .screen {
   min-height: 100dvh;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 14px;
   padding: 24px 16px;
 }
 
@@ -162,7 +171,7 @@ html, body {
   letter-spacing: 0.03em;
 }
 
-/* ---- 결과 화면 (입실/퇴실) ---- */
+/* ---- 결과 화면 공통 ---- */
 .status-pill {
   display: inline-block;
   font-size: 12px;
@@ -219,49 +228,6 @@ html, body {
   color: var(--ink);
 }
 
-/* ---- 참여부 진행 사다리 (시그니처 요소) ---- */
-.ladder {
-  margin: 22px 0 6px;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-.ladder-step {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 9px 0;
-}
-
-.ladder-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--line);
-  flex-shrink: 0;
-}
-
-.ladder-step.reached .ladder-dot {
-  background: var(--accent);
-}
-
-.ladder-label {
-  font-size: 14px;
-  color: var(--muted);
-}
-
-.ladder-step.reached .ladder-label {
-  color: var(--ink);
-  font-weight: 600;
-}
-
-.ladder-threshold {
-  margin-left: auto;
-  font-size: 12px;
-  color: var(--muted);
-}
-
 .final-status {
   margin-top: 20px;
   text-align: center;
@@ -281,21 +247,9 @@ html, body {
   color: var(--alert);
 }
 
-/* ---- 대기/안내 화면 ---- */
-.idle-block {
-  text-align: center;
-  padding: 16px 0 4px;
-}
-
 .idle-icon {
   font-size: 32px;
   margin-bottom: 10px;
-}
-
-.idle-text {
-  font-size: 15px;
-  color: var(--ink-soft);
-  line-height: 1.6;
 }
 
 .idle-sub {
@@ -314,7 +268,17 @@ html, body {
   text-align: center;
 }
 
-/* ---- 현재 상태 화면 (입실 전 / 자습 중) ---- */
+.done-note {
+  margin-top: 18px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+  background: var(--paper);
+  border-radius: 10px;
+  padding: 10px;
+}
+
+/* ---- 현재 상태 화면 헤더 ---- */
 .status-header {
   text-align: center;
   padding: 6px 0 4px;
@@ -338,60 +302,6 @@ html, body {
   font-size: 12px;
   color: var(--muted);
   letter-spacing: 0.05em;
-  margin-bottom: 6px;
-}
-
-.status-current-value {
-  font-size: 20px;
-  font-weight: 700;
-  margin-bottom: 22px;
-}
-
-.status-current-value.waiting { color: var(--muted); }
-.status-current-value.studying { color: var(--accent); }
-
-.status-checkin-time {
-  font-size: 13px;
-  color: var(--muted);
-  margin-top: -14px;
-  margin-bottom: 22px;
-}
-
-.btn-action {
-  display: block;
-  width: 100%;
-  padding: 16px 16px;
-  border: none;
-  border-radius: 14px;
-  font-family: var(--font-body);
-  font-size: 17px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: opacity 0.15s ease, transform 0.05s ease;
-}
-
-.btn-action:active { transform: scale(0.98); }
-.btn-action:disabled { opacity: 0.5; cursor: not-allowed; }
-
-.btn-action.checkin {
-  background: var(--ink);
-  color: #fff;
-}
-
-.btn-action.checkout {
-  background: var(--accent);
-  color: #fff;
-}
-
-/* ---- 이미 퇴실 완료(오늘 종료) 안내 ---- */
-.done-note {
-  margin-top: 18px;
-  text-align: center;
-  font-size: 13px;
-  color: var(--muted);
-  background: var(--paper);
-  border-radius: 10px;
-  padding: 10px;
 }
 
 /* ---- 부별 출석 현황 리스트 ---- */
@@ -454,7 +364,7 @@ html, body {
   color: var(--muted);
 }
 
-/* ---- 현재 진행 중 부의 입실/퇴실 액션 ---- */
+/* ---- 현재 진행 중 부의 액션 ---- */
 .action-block {
   margin: 20px 0 6px;
   text-align: center;
@@ -475,172 +385,112 @@ html, body {
   margin-bottom: 16px;
 }
 
-/* =========================================
-   관리자 페이지 스타일
-   ========================================= */
-
-.admin-screen {
-  min-height: 100dvh;
-  padding: 24px 16px 60px;
-  display: flex;
-  justify-content: center;
+.btn-action {
+  display: block;
+  width: 100%;
+  padding: 16px 16px;
+  border: none;
+  border-radius: 14px;
+  font-family: var(--font-body);
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.05s ease;
 }
 
-.admin-card {
+.btn-action:active { transform: scale(0.98); }
+.btn-action:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-action.checkin {
+  background: var(--ink);
+  color: #fff;
+}
+
+.btn-action.checkout {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* ---- 도움말(접히는 안내 문구) ---- */
+.help-box {
   width: 100%;
-  max-width: 920px;
+  max-width: 380px;
   background: var(--paper-card);
   border: 1px solid var(--line);
-  border-radius: 20px;
-  padding: 28px 24px 32px;
-  box-shadow: 0 1px 2px rgba(20, 33, 61, 0.04), 0 12px 32px rgba(20, 33, 61, 0.06);
+  border-radius: 14px;
+  padding: 12px 16px;
+  font-size: 12px;
+  color: var(--muted);
 }
 
-.admin-title {
-  font-size: 20px;
-  font-weight: 700;
-  margin: 4px 0 20px;
+.help-box summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--ink-soft);
+  list-style: none;
 }
 
-.admin-pw-input {
-  max-width: 220px;
+.help-box summary::-webkit-details-marker {
+  display: none;
 }
 
-.admin-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 18px;
+.help-box summary::after {
+  content: " ▾";
+  color: var(--muted);
 }
 
-.admin-logout {
-  margin-top: 4px;
+.help-box[open] summary::after {
+  content: " ▴";
 }
 
-.admin-controls {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 12px 16px;
-  align-items: end;
-  margin-bottom: 20px;
+.help-box ul {
+  margin: 10px 0 2px;
+  padding-left: 18px;
+  line-height: 1.6;
 }
 
-.date-input,
-.admin-search-input,
-.filter-select {
+.help-box li {
+  margin-bottom: 6px;
+}
+
+.help-box strong {
+  color: var(--ink-soft);
+}
+
+.inquiry-textarea {
   width: 100%;
+  font-family: var(--font-body);
+  font-size: 14px;
   padding: 10px 12px;
   border: 1.5px solid var(--line);
   border-radius: 10px;
   background: var(--paper);
   color: var(--ink);
-  font-family: var(--font-body);
-  font-size: 14px;
+  resize: vertical;
   outline: none;
+  transition: border-color 0.15s ease;
 }
 
-.date-input:focus,
-.admin-search-input:focus,
-.filter-select:focus {
+.inquiry-textarea:focus {
   border-color: var(--ink);
 }
 
-.summary-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.summary-box {
-  background: var(--paper);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 14px 10px;
-  text-align: center;
-}
-
-.summary-value {
-  font-family: var(--font-display);
-  font-size: 26px;
-  font-weight: 600;
-  color: var(--ink);
-}
-
-.summary-label {
-  margin-top: 2px;
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.table-wrap {
-  overflow-x: auto;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-}
-
-.log-table {
+/* ---- 문의하기 페이지로 가는 링크 (학생 화면 하단) ---- */
+.inquiry-link {
+  display: block;
   width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-}
-
-.log-table th {
-  text-align: left;
-  background: var(--paper);
-  color: var(--muted);
-  font-weight: 600;
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--line);
-  white-space: nowrap;
-}
-
-.log-table td {
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--line);
-  white-space: nowrap;
-}
-
-.log-table tr:last-child td {
-  border-bottom: none;
-}
-
-.table-empty {
-  padding: 24px 12px;
+  max-width: 380px;
   text-align: center;
-  color: var(--muted);
-}
-
-.tag {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-size: 12px;
+  padding: 12px 16px;
+  background: var(--paper-card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  font-size: 13px;
   font-weight: 600;
-}
-
-.tag-ok { background: var(--accent-soft); color: var(--accent); }
-.tag-fail { background: var(--alert-soft); color: var(--alert); }
-.tag-pending { background: #f0edE4; color: var(--muted); }
-
-.admin-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 18px;
-}
-
-.admin-action-btn {
-  width: auto;
-  margin-top: 0;
-  padding: 10px 18px;
-}
-
-.admin-sheet-link {
-  margin-top: 0;
+  color: var(--ink-soft);
   text-decoration: none;
-  border: 1.5px solid var(--line);
-  border-radius: 10px;
-  padding: 9px 16px;
-  font-size: 14px;
+}
+
+.inquiry-link:active {
+  background: var(--paper);
 }
