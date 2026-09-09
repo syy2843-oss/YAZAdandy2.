@@ -9,10 +9,27 @@
 <body>
   <main class="screen">
     <div id="app" class="card" aria-live="polite">
-      <!-- student.js가 이 안의 내용을 상황에 맞게 채웁니다 -->
       <p class="eyebrow">자습 출석</p>
       <p class="loading-text">불러오는 중…</p>
     </div>
+
+    <details class="help-box">
+      <summary>📱 이용 안내 (등록이 자꾸 초기화될 때 읽어주세요)</summary>
+      <ul>
+        <li>NFC 태그를 찍어서 뜨는 화면으로만 이용해주세요 (즐겨찾기 저장 X, 홈 화면 추가 X)</li>
+        <li><strong>비공개(시크릿) 모드로 열지 마세요</strong> — 창을 닫으면 등록 정보가 사라집니다</li>
+        <li>휴대폰 저장공간을 정리할 때 <strong>"Safari 방문 기록 및 웹사이트 데이터 지우기"는 누르지 마세요</strong> (등록이 초기화됩니다)</li>
+        <li>방학이나 연휴로 일주일 이상 안 쓰면 아이폰이 자동으로 등록 정보를 지울 수 있어요. 이 경우 다시 태그를 찍으면 재등록 화면이 뜨니, 선생님께 말씀해주세요</li>
+      </ul>
+    </details>
+
+    <details class="help-box">
+      <summary>✉️ 문의하기</summary>
+      <p style="margin:10px 0 8px;">출석이 잘 안 되거나 궁금한 점을 남겨주시면 선생님이 확인합니다.</p>
+      <textarea id="inquiryContent" class="inquiry-textarea" rows="4" placeholder="예: 2부 입실이 안 눌러져요"></textarea>
+      <button id="inquirySubmitBtn" class="btn btn-primary" style="margin-top:8px;">문의 보내기</button>
+      <p id="inquiryMsg" style="margin-top:8px; font-size:12px;"></p>
+    </details>
   </main>
 
   <script src="student.js"></script>

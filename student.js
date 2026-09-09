@@ -1,7 +1,7 @@
 /**
  * ===================================
  * 자습 출석 시스템 - 학생 페이지 로직
- * (부별 독립 입실/퇴실 + 기기 등록/인증으로 대리출석 방지)
+ * (부별 즉시출석 + 기기 등록/인증으로 대리출석 방지)
  * ===================================
  *
  * ⚠️ 아래 WEB_APP_URL을 본인의 Apps Script 웹 앱 URL로 바꿔주세요.
@@ -40,8 +40,19 @@ function getSavedDeviceToken() {
   return localStorage.getItem(DEVICE_TOKEN_STORAGE_KEY);
 }
 
+/**
+ * 기기 토큰을 저장하고, 실제로 잘 저장됐는지 즉시 재확인한다.
+ * (시크릿 모드, 저장공간 부족 등으로 저장이 조용히 실패하는 경우를 대비)
+ * 성공하면 true, 실패하면 false를 반환한다.
+ */
 function saveDeviceToken(token) {
-  localStorage.setItem(DEVICE_TOKEN_STORAGE_KEY, token);
+  try {
+    localStorage.setItem(DEVICE_TOKEN_STORAGE_KEY, token);
+    const readBack = localStorage.getItem(DEVICE_TOKEN_STORAGE_KEY);
+    return readBack === token;
+  } catch (err) {
+    return false;
+  }
 }
 
 function clearSavedIdentity() {
@@ -114,8 +125,8 @@ function renderConfirm(student) {
 }
 
 /**
- * 새로 만든 화면: "이 휴대폰을 출석 기기로 등록하시겠습니까?"
- * 학번 확인이 끝난 뒤, 실제 입실/퇴실에 쓸 기기 토큰을 발급받는 단계.
+ * "이 휴대폰을 출석 기기로 등록하시겠습니까?"
+ * 학번 확인이 끝난 뒤, 실제 입실에 쓸 기기 토큰을 발급받는 단계.
  */
 function renderDeviceRegisterConfirm(student, errorMessage) {
   app.innerHTML = `
@@ -137,7 +148,20 @@ function renderDeviceRegisterConfirm(student, errorMessage) {
         renderDeviceRegisterConfirm(student, result.error);
         return;
       }
-      saveDeviceToken(result.deviceToken);
+
+      // 서버 등록은 성공했지만, 이 휴대폰에 토큰 저장이 실패하면
+      // 다음에 "이미 등록된 기기가 있습니다"로 막히게 되므로 여기서 바로 확인한다.
+      const saved = saveDeviceToken(result.deviceToken);
+      if (!saved) {
+        renderDeviceRegisterConfirm(
+          student,
+          "휴대폰에 등록 정보를 저장하지 못했습니다. 시크릿(비공개) 모드가 아닌 " +
+          "일반 브라우저 창으로 다시 열어서 시도해주세요. 이미 서버에는 등록이 완료되어, " +
+          "재시도해도 오류가 나면 선생님께 문의해주세요."
+        );
+        return;
+      }
+
       loadStatus(student.studentId);
     } catch (err) {
       renderDeviceRegisterConfirm(student, "네트워크 오류가 발생했습니다. 다시 시도해주세요.");
@@ -319,9 +343,59 @@ function escapeHtml(text) {
 }
 
 // -------------------------------------------------
+// 문의하기
+// -------------------------------------------------
+function initInquiryForm() {
+  const btn = document.getElementById("inquirySubmitBtn");
+  if (!btn) return;
+
+  const textarea = document.getElementById("inquiryContent");
+  const msg = document.getElementById("inquiryMsg");
+
+  btn.addEventListener("click", async () => {
+    const content = textarea.value.trim();
+    if (!content) {
+      msg.textContent = "내용을 입력해주세요.";
+      msg.style.color = "var(--alert)";
+      return;
+    }
+
+    btn.disabled = true;
+    msg.textContent = "보내는 중…";
+    msg.style.color = "var(--muted)";
+
+    try {
+      const studentId = getSavedStudentId() || "";
+      const result = await callServer("submitInquiry", { studentId, content });
+      if (result.success) {
+        msg.textContent = "문의가 접수되었습니다. 확인 후 도움드릴게요.";
+        msg.style.color = "var(--accent)";
+        textarea.value = "";
+      } else {
+        msg.textContent = result.error || "오류가 발생했습니다.";
+        msg.style.color = "var(--alert)";
+      }
+    } catch (err) {
+      msg.textContent = "네트워크 오류가 발생했습니다.";
+      msg.style.color = "var(--alert)";
+    } finally {
+      btn.disabled = false;
+    }
+  });
+}
+
+// -------------------------------------------------
 // 시작점
 // -------------------------------------------------
 function init() {
+  initInquiryForm();
+
+  // 저장공간이 부족해질 때 이 사이트의 데이터가 먼저 지워지지 않도록 요청.
+  // (완전한 보장은 아니지만, 부작용 없이 도움이 될 수 있어 추가)
+  if (navigator.storage && navigator.storage.persist) {
+    navigator.storage.persist().catch(() => {});
+  }
+
   if (WEB_APP_URL.indexOf("PUT_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE") !== -1) {
     app.innerHTML = `
       <p class="eyebrow">설정 필요</p>
@@ -334,11 +408,8 @@ function init() {
   const savedDeviceToken = getSavedDeviceToken();
 
   if (savedStudentId && savedDeviceToken) {
-    // 학번+기기 등록 모두 완료된 경우 → 바로 상태 조회
     loadStatus(savedStudentId);
   } else if (savedStudentId && !savedDeviceToken) {
-    // 예전 버전(기기 등록 기능 추가 전)부터 학번만 저장돼 있던 경우 →
-    // 학번 재입력 없이 바로 기기 등록 단계로 안내
     callServer("checkStudent", { studentId: savedStudentId })
       .then((result) => {
         if (result.success) {
