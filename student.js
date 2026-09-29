@@ -306,6 +306,10 @@ async function doCheckin(studentId, part) {
     const deviceToken = getSavedDeviceToken();
     const result = await callServer("checkin", { studentId, part, deviceToken });
     if (!result.success) {
+      if (isDeviceAuthError(result.error)) {
+        renderDeviceAuthFailure(result.error);
+        return;
+      }
       showActionError(result.error);
     }
     await loadStatus(studentId);
@@ -313,6 +317,40 @@ async function doCheckin(studentId, part) {
     showActionError("네트워크 오류가 발생했습니다.");
     setActionButtonDisabled(false);
   }
+}
+
+/**
+ * 서버가 "기기 인증에 실패했습니다: ..." 형태로 돌려주는 오류인지 확인.
+ * (부 시간대 오류, 중복 출석 오류 등 다른 오류와 구분하기 위함)
+ */
+function isDeviceAuthError(message) {
+  return typeof message === "string" && message.indexOf("기기 인증에 실패") !== -1;
+}
+
+/**
+ * 등록된 기기가 없어서(또는 토큰이 사라져서) 입실이 거부된 경우,
+ * 학생이 뭘 해야 하는지 놓치지 않도록 화면 전체를 바꿔서 크게 안내한다.
+ * 작은 빨간 글씨 오류만 띄우고 학생이 계속 같은 버튼만 누르는 상황을 막기 위함.
+ */
+function renderDeviceAuthFailure(message) {
+  app.innerHTML = `
+    <p class="eyebrow" style="color:var(--alert);">기기 등록이 필요해요</p>
+    <p class="title" style="font-size:22px; line-height:1.4;">
+      이 휴대폰에 등록된<br/>출석 정보가 없어요.
+    </p>
+    <p class="idle-sub" style="margin-bottom:20px; font-size:14px;">
+      아래 버튼을 눌러 <strong>학번을 다시 입력</strong>하고<br/>이 휴대폰을 새로 등록해주세요.
+    </p>
+    <button id="goRegisterBtn" class="btn-action checkin" style="font-size:18px;">
+      학번 입력하고 다시 등록하기
+    </button>
+    <p class="footer-note">${escapeHtml(message)}</p>
+  `;
+
+  document.getElementById("goRegisterBtn").addEventListener("click", () => {
+    clearSavedIdentity();
+    renderRegisterForm();
+  });
 }
 
 function resetRegistration() {
@@ -385,10 +423,118 @@ function initInquiryForm() {
 }
 
 // -------------------------------------------------
+// 내 문의 확인하기 (+ 새 답변 도착 알림 배너)
+// -------------------------------------------------
+const SEEN_ANSWER_COUNT_KEY = "attendance_seen_answer_count";
+
+function getSeenAnswerCount() {
+  return Number(localStorage.getItem(SEEN_ANSWER_COUNT_KEY) || 0);
+}
+
+function setSeenAnswerCount(n) {
+  try {
+    localStorage.setItem(SEEN_ANSWER_COUNT_KEY, String(n));
+  } catch (err) {
+    // 저장 실패해도 기능에는 영향 없음 (다음에 배너가 다시 뜰 뿐)
+  }
+}
+
+function countAnswered(rows) {
+  return rows.filter((r) => r.answer).length;
+}
+
+function renderMyInquiries(rows) {
+  const listEl = document.getElementById("myInquiriesList");
+
+  if (rows.length === 0) {
+    listEl.innerHTML = `<p class="idle-sub">아직 보낸 문의가 없습니다.</p>`;
+    return;
+  }
+
+  listEl.innerHTML = rows
+    .map((r) => {
+      const answerHtml = r.answer
+        ? `<div style="margin-top:4px; color:var(--accent);">↳ 답변: ${escapeHtml(r.answer)}</div>`
+        : `<div style="margin-top:4px; color:var(--muted);">아직 답변 대기 중이에요.</div>`;
+      return `
+        <div style="padding:8px 0; border-bottom:1px solid var(--line);">
+          <div style="color:var(--muted);">${escapeHtml(r.time)}</div>
+          <div style="margin-top:2px;">${escapeHtml(r.content)}</div>
+          ${answerHtml}
+        </div>
+      `;
+    })
+    .join("");
+}
+
+function initMyInquiries() {
+  const box = document.getElementById("myInquiriesBox");
+  const banner = document.getElementById("newAnswerBanner");
+  if (!box) return;
+
+  let cachedRows = null;
+
+  async function fetchRows() {
+    const studentId = getSavedStudentId();
+    if (!studentId) return null;
+    const result = await callServer("getMyInquiries", { studentId });
+    return result.success ? result.rows : null;
+  }
+
+  // 1) 페이지가 열리자마자 조용히 확인해서, 아직 안 본 새 답변이 있으면 배너를 띄운다.
+  (async () => {
+    try {
+      const rows = await fetchRows();
+      if (!rows) return;
+      cachedRows = rows;
+      if (banner && countAnswered(rows) > getSeenAnswerCount()) {
+        banner.style.display = "block";
+      }
+    } catch (err) {
+      // 배너 확인 실패는 조용히 무시 (출석 기능과 무관)
+    }
+  })();
+
+  // 2) 배너를 누르면 "내 문의 확인하기" 박스를 열어서 보여준다.
+  if (banner) {
+    banner.addEventListener("click", () => {
+      box.open = true;
+      box.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+  }
+
+  // 3) 박스를 펼치면 목록을 그리고, 그 시점의 답변 개수를 "확인함"으로 저장한다.
+  box.addEventListener("toggle", async () => {
+    if (!box.open) return;
+
+    const listEl = document.getElementById("myInquiriesList");
+    if (!getSavedStudentId()) {
+      listEl.innerHTML = `<p class="idle-sub">학번 등록 후 이용 가능합니다.</p>`;
+      return;
+    }
+
+    try {
+      const rows = (await fetchRows()) || cachedRows;
+      if (!rows) {
+        listEl.innerHTML = `<p class="error-text">문의 내역을 불러오지 못했습니다.</p>`;
+        return;
+      }
+      cachedRows = rows;
+      renderMyInquiries(rows);
+      setSeenAnswerCount(countAnswered(rows));
+      if (banner) banner.style.display = "none";
+    } catch (err) {
+      listEl.innerHTML = `<p class="error-text">네트워크 오류가 발생했습니다.</p>`;
+    }
+  });
+}
+
+// -------------------------------------------------
 // 시작점
 // -------------------------------------------------
 function init() {
   initInquiryForm();
+  initMyInquiries();
 
   // 저장공간이 부족해질 때 이 사이트의 데이터가 먼저 지워지지 않도록 요청.
   // (완전한 보장은 아니지만, 부작용 없이 도움이 될 수 있어 추가)
