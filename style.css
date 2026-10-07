@@ -1,511 +1,60 @@
-/* =========================================
-   자습 출석 시스템 - 학생 페이지 스타일
-   컨셉: 차분하게 집중하는 자습실의 기록부
-   ========================================= */
-
-/* 폰트는 이제 각 HTML 파일의 <head>에서 <link>로 미리 불러옵니다
-   (CSS @import는 순차적으로 로딩돼서 느려지므로 병렬 로딩을 위해 옮김) */
-
-:root {
-  --ink: #14213d;         /* 진한 잉크 남색 - 헤더/포커스 */
-  --ink-soft: #2c3a5e;
-  --paper: #faf9f6;       /* 은은한 종이색 배경 */
-  --paper-card: #ffffff;
-  --accent: #2f6f4f;      /* 짙은 숲녹색 - 완료/성공 */
-  --accent-soft: #e6efe9;
-  --alert: #a5322a;       /* 브릭레드 - 미인정/오류 */
-  --alert-soft: #f4e6e4;
-  --muted: #6b7280;
-  --line: #e4e1d9;
-
-  --font-body: "PretendardVariable", "Pretendard", -apple-system, sans-serif;
-  --font-display: "Newsreader", "PretendardVariable", serif;
-}
-
-* { box-sizing: border-box; }
-
-html {
-  /* 삼성 인터넷 등 일부 모바일 브라우저가 "웹사이트 글자 크기" 설정으로
-     페이지 글자를 강제로 확대해서 레이아웃이 깨지는 것을 방지 */
-  -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
-}
-
-html, body {
-  margin: 0;
-  padding: 0;
-  background: var(--paper);
-  color: var(--ink);
-  font-family: var(--font-body);
-  -webkit-font-smoothing: antialiased;
-}
-
-.screen {
-  min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  padding: 24px 16px;
-}
-
-.card {
-  width: 100%;
-  max-width: 380px;
-  background: var(--paper-card);
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  padding: 32px 24px 28px;
-  box-shadow: 0 1px 2px rgba(20, 33, 61, 0.04), 0 12px 32px rgba(20, 33, 61, 0.06);
-}
-
-.eyebrow {
-  margin: 0 0 4px;
-  font-size: 13px;
-  letter-spacing: 0.08em;
-  color: var(--muted);
-  font-weight: 600;
-}
-
-.loading-text {
-  margin: 40px 0;
-  text-align: center;
-  color: var(--muted);
-  font-size: 14px;
-}
-
-/* ---- 학번 입력 화면 ---- */
-.title {
-  margin: 4px 0 20px;
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--ink);
-}
-
-.field-label {
-  display: block;
-  font-size: 13px;
-  color: var(--muted);
-  margin-bottom: 8px;
-}
-
-.text-input {
-  width: 100%;
-  font-family: var(--font-display);
-  font-size: 28px;
-  letter-spacing: 0.04em;
-  padding: 14px 12px;
-  border: 1.5px solid var(--line);
-  border-radius: 12px;
-  background: var(--paper);
-  color: var(--ink);
-  text-align: center;
-  outline: none;
-  transition: border-color 0.15s ease;
-}
-
-.text-input:focus {
-  border-color: var(--ink);
-}
-
-.btn {
-  display: block;
-  width: 100%;
-  padding: 14px 16px;
-  margin-top: 16px;
-  border: none;
-  border-radius: 12px;
-  font-family: var(--font-body);
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: opacity 0.15s ease, transform 0.05s ease;
-}
-
-.btn:active { transform: scale(0.98); }
-
-.btn-primary {
-  background: var(--ink);
-  color: #fff;
-}
-
-.btn-primary:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.btn-ghost {
-  background: transparent;
-  color: var(--muted);
-  font-weight: 500;
-  font-size: 14px;
-  padding: 10px 8px;
-  margin-top: 8px;
-}
-
-.error-text {
-  margin-top: 12px;
-  font-size: 14px;
-  color: var(--alert);
-  text-align: center;
-}
-
-/* ---- 학생 확인 화면 ---- */
-.confirm-block {
-  text-align: center;
-  padding: 12px 0 8px;
-}
-
-.confirm-name {
-  font-family: var(--font-display);
-  font-size: 32px;
-  font-weight: 600;
-  color: var(--ink);
-  margin: 4px 0 2px;
-}
-
-.confirm-id {
-  font-size: 14px;
-  color: var(--muted);
-  letter-spacing: 0.03em;
-}
-
-/* ---- 결과 화면 공통 ---- */
-.status-pill {
-  display: inline-block;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  padding: 5px 12px;
-  border-radius: 999px;
-  margin-bottom: 16px;
-}
-
-.status-pill.ok {
-  background: var(--accent-soft);
-  color: var(--accent);
-}
-
-.status-pill.fail {
-  background: var(--alert-soft);
-  color: var(--alert);
-}
-
-.result-name {
-  font-size: 18px;
-  font-weight: 700;
-  margin: 0 0 2px;
-}
-
-.result-id {
-  font-size: 13px;
-  color: var(--muted);
-  margin-bottom: 18px;
-}
-
-.time-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  padding: 10px 0;
-  border-top: 1px solid var(--line);
-}
-
-.time-row:last-of-type {
-  border-bottom: 1px solid var(--line);
-}
-
-.time-label {
-  font-size: 13px;
-  color: var(--muted);
-}
-
-.time-value {
-  font-family: var(--font-display);
-  font-size: 22px;
-  font-weight: 500;
-  color: var(--ink);
-}
-
-.final-status {
-  margin-top: 20px;
-  text-align: center;
-  padding: 14px 0;
-  border-radius: 12px;
-  font-size: 16px;
-  font-weight: 700;
-}
-
-.final-status.ok {
-  background: var(--accent-soft);
-  color: var(--accent);
-}
-
-.final-status.fail {
-  background: var(--alert-soft);
-  color: var(--alert);
-}
-
-.idle-icon {
-  font-size: 32px;
-  margin-bottom: 10px;
-}
-
-.idle-sub {
-  margin-top: 6px;
-  font-size: 13px;
-  color: var(--muted);
-}
-
-.footer-note {
-  margin-top: 18px;
-  padding-top: 14px;
-  border-top: 1px solid var(--line);
-  font-size: 11px;
-  color: var(--muted);
-  line-height: 1.5;
-  text-align: center;
-}
-
-.done-note {
-  margin-top: 18px;
-  text-align: center;
-  font-size: 13px;
-  color: var(--muted);
-  background: var(--paper);
-  border-radius: 10px;
-  padding: 10px;
-}
-
-/* ---- 현재 상태 화면 헤더 ---- */
-.status-header {
-  text-align: center;
-  padding: 6px 0 4px;
-}
-
-.status-id {
-  font-size: 13px;
-  color: var(--muted);
-  letter-spacing: 0.03em;
-}
-
-.status-name {
-  font-family: var(--font-display);
-  font-size: 26px;
-  font-weight: 600;
-  color: var(--ink);
-  margin: 2px 0 18px;
-}
-
-.status-current-label {
-  font-size: 12px;
-  color: var(--muted);
-  letter-spacing: 0.05em;
-}
-
-/* ---- 부별 출석 현황 리스트 ---- */
-.part-list {
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  overflow: hidden;
-  margin-bottom: 4px;
-}
-
-.part-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--line);
-  background: var(--paper-card);
-}
-
-.part-row:last-child {
-  border-bottom: none;
-}
-
-.part-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--line);
-  flex-shrink: 0;
-}
-
-.part-dot.done { background: var(--accent); }
-.part-dot.studying { background: #d9a441; }
-.part-dot.available { background: var(--ink); }
-.part-dot.none { background: var(--line); }
-.part-dot.fail { background: var(--alert); }
-
-.part-name {
-  font-family: var(--font-display);
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--ink);
-  width: 32px;
-}
-
-.part-status-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--muted);
-}
-
-.part-status-label.done { color: var(--accent); }
-.part-status-label.studying { color: #b8842f; }
-.part-status-label.available { color: var(--ink); }
-.part-status-label.fail { color: var(--alert); }
-
-.part-schedule {
-  margin-left: auto;
-  font-size: 12px;
-  color: var(--muted);
-}
-
-/* ---- 현재 진행 중 부의 액션 ---- */
-.action-block {
-  margin: 20px 0 6px;
-  text-align: center;
-}
-
-.action-current-label {
-  font-size: 12px;
-  color: var(--muted);
-  letter-spacing: 0.05em;
-  margin-bottom: 4px;
-}
-
-.action-current-part {
-  font-family: var(--font-display);
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--ink);
-  margin-bottom: 16px;
-}
-
-.btn-action {
-  display: block;
-  width: 100%;
-  padding: 16px 16px;
-  border: none;
-  border-radius: 14px;
-  font-family: var(--font-body);
-  font-size: 17px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: opacity 0.15s ease, transform 0.05s ease;
-}
-
-.btn-action:active { transform: scale(0.98); }
-.btn-action:disabled { opacity: 0.5; cursor: not-allowed; }
-
-.btn-action.checkin {
-  background: var(--ink);
-  color: #fff;
-}
-
-.btn-action.checkout {
-  background: var(--accent);
-  color: #fff;
-}
-
-/* ---- 도움말(접히는 안내 문구) ---- */
-.help-box {
-  width: 100%;
-  max-width: 380px;
-  background: var(--paper-card);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 12px 16px;
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.help-box summary {
-  cursor: pointer;
-  font-weight: 600;
-  color: var(--ink-soft);
-  list-style: none;
-}
-
-.help-box summary::-webkit-details-marker {
-  display: none;
-}
-
-.help-box summary::after {
-  content: " ▾";
-  color: var(--muted);
-}
-
-.help-box[open] summary::after {
-  content: " ▴";
-}
-
-.help-box ul {
-  margin: 10px 0 2px;
-  padding-left: 18px;
-  line-height: 1.6;
-}
-
-.help-box li {
-  margin-bottom: 6px;
-}
-
-.help-box strong {
-  color: var(--ink-soft);
-}
-
-.inquiry-textarea {
-  width: 100%;
-  font-family: var(--font-body);
-  font-size: 14px;
-  padding: 10px 12px;
-  border: 1.5px solid var(--line);
-  border-radius: 10px;
-  background: var(--paper);
-  color: var(--ink);
-  resize: vertical;
-  outline: none;
-  transition: border-color 0.15s ease;
-}
-
-.inquiry-textarea:focus {
-  border-color: var(--ink);
-}
-
-/* ---- 문의하기 페이지로 가는 링크 (학생 화면 하단) ---- */
-.inquiry-link {
-  display: block;
-  width: 100%;
-  max-width: 380px;
-  text-align: center;
-  padding: 12px 16px;
-  background: var(--paper-card);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--ink-soft);
-  text-decoration: none;
-}
-
-.inquiry-link:active {
-  background: var(--paper);
-}
-
-/* ---- 새 답변 도착 알림 배너 ---- */
-.answer-banner {
-  width: 100%;
-  max-width: 380px;
-  text-align: center;
-  padding: 12px 16px;
-  background: var(--accent-soft);
-  border: 1px solid var(--accent);
-  border-radius: 14px;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--accent);
-  cursor: pointer;
-}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<title>자습 출석</title>
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate" />
+
+<!-- 폰트/서버 도메인에 미리 연결해둬서 실제 요청 시 지연(DNS·TLS 협상)을 줄인다 -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="preconnect" href="https://cdn.jsdelivr.net" />
+<link rel="preconnect" href="https://script.google.com" />
+
+<!-- CSS 안의 @import 대신 link로 불러와서 병렬로 먼저 받아오게 함 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap" />
+
+<link rel="stylesheet" href="style.css?v=20261007" />
+</head>
+<body>
+  <main class="screen">
+    <div id="app" class="card" aria-live="polite">
+      <p class="eyebrow">자습 출석</p>
+      <p class="loading-text">불러오는 중…</p>
+    </div>
+
+    <div id="newAnswerBanner" class="answer-banner" style="display:none;" role="button" tabindex="0">
+      📩 선생님의 새 답변이 도착했어요! (눌러서 확인)
+    </div>
+
+    <details class="help-box">
+      <summary>📱 이용 안내 (등록이 자꾸 초기화될 때 읽어주세요)</summary>
+      <ul>
+        <li>NFC 태그를 찍어서 뜨는 화면으로만 이용해주세요 (즐겨찾기 저장 X, 홈 화면 추가 X)</li>
+        <li><strong>비공개(시크릿) 모드로 열지 마세요</strong> — 창을 닫으면 등록 정보가 사라집니다</li>
+        <li>휴대폰 저장공간을 정리할 때 <strong>"Safari 방문 기록 및 웹사이트 데이터 지우기"는 누르지 마세요</strong> (등록이 초기화됩니다)</li>
+        <li>방학이나 연휴로 일주일 이상 안 쓰면 아이폰이 자동으로 등록 정보를 지울 수 있어요. 이 경우 다시 태그를 찍으면 재등록 화면이 뜨니, 선생님께 말씀해주세요</li>
+      </ul>
+    </details>
+
+    <details class="help-box">
+      <summary>✉️ 문의하기</summary>
+      <p style="margin:10px 0 8px;">출석이 잘 안 되거나 궁금한 점을 남겨주시면 선생님이 확인합니다.</p>
+      <textarea id="inquiryContent" class="inquiry-textarea" rows="4" placeholder="예: 2부 입실이 안 눌러져요"></textarea>
+      <button id="inquirySubmitBtn" class="btn btn-primary" style="margin-top:8px;">문의 보내기</button>
+      <p id="inquiryMsg" style="margin-top:8px; font-size:12px;"></p>
+    </details>
+
+    <details class="help-box" id="myInquiriesBox">
+      <summary>📩 내 문의 확인하기</summary>
+      <div id="myInquiriesList" style="margin-top:10px; font-size:12px;">
+        <p class="idle-sub">펼치면 자동으로 불러옵니다…</p>
+      </div>
+    </details>
+  </main>
+
+  <script src="student.js?v=20261007"></script>
+</body>
+</html>
