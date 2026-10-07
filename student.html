@@ -4,13 +4,29 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
 <title>자습 출석</title>
-<link rel="stylesheet" href="style.css" />
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate" />
+
+<!-- 폰트/서버 도메인에 미리 연결해둬서 실제 요청 시 지연(DNS·TLS 협상)을 줄인다 -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="preconnect" href="https://cdn.jsdelivr.net" />
+<link rel="preconnect" href="https://script.google.com" />
+
+<!-- CSS 안의 @import 대신 link로 불러와서 병렬로 먼저 받아오게 함 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap" />
+
+<link rel="stylesheet" href="style.css?v=20261007" />
 </head>
 <body>
   <main class="screen">
     <div id="app" class="card" aria-live="polite">
       <p class="eyebrow">자습 출석</p>
       <p class="loading-text">불러오는 중…</p>
+    </div>
+
+    <div id="newAnswerBanner" class="answer-banner" style="display:none;" role="button" tabindex="0">
+      📩 선생님의 새 답변이 도착했어요! (눌러서 확인)
     </div>
 
     <details class="help-box">
@@ -30,8 +46,15 @@
       <button id="inquirySubmitBtn" class="btn btn-primary" style="margin-top:8px;">문의 보내기</button>
       <p id="inquiryMsg" style="margin-top:8px; font-size:12px;"></p>
     </details>
+
+    <details class="help-box" id="myInquiriesBox">
+      <summary>📩 내 문의 확인하기</summary>
+      <div id="myInquiriesList" style="margin-top:10px; font-size:12px;">
+        <p class="idle-sub">펼치면 자동으로 불러옵니다…</p>
+      </div>
+    </details>
   </main>
 
-  <script src="student.js"></script>
+  <script src="student.js?v=20261007"></script>
 </body>
 </html>

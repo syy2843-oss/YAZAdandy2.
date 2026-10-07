@@ -1,7 +1,7 @@
 /**
  * ===================================
  * 자습 출석 시스템 - 관리자 페이지 로직
- * (부별 독립 입실/퇴실 시스템 반영)
+ * (부별 즉시출석 시스템 + 기기 초기화 기능 반영)
  * ===================================
  *
  * ⚠️ 아래 두 값을 반드시 채워주세요.
@@ -123,6 +123,12 @@ function renderDashboard() {
       </select>
     </div>
 
+    <div class="filter-bar" style="margin-top:-4px;">
+      <input id="resetStudentIdInput" type="text" placeholder="초기화할 학번 입력" style="flex:1;" />
+      <button id="resetDeviceBtn" class="btn-small">기기 초기화</button>
+      <span id="resetResultMsg" style="font-size:13px;"></span>
+    </div>
+
     <div class="table-wrap">
       <table class="log-table">
         <thead>
@@ -131,6 +137,21 @@ function renderDashboard() {
           </tr>
         </thead>
         <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="table-wrap" style="margin-top:16px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-bottom:1px solid var(--line);">
+        <strong style="font-size:14px;">문의함</strong>
+        <button id="refreshInquiriesBtn" class="btn-small">새로고침</button>
+      </div>
+      <table class="log-table">
+        <thead>
+          <tr>
+            <th>시각</th><th>학번</th><th>내용</th><th>상태</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="inquiryBody"></tbody>
       </table>
     </div>
   `;
@@ -143,9 +164,149 @@ function renderDashboard() {
     clearPassword();
     renderLogin();
   });
+  document.getElementById("resetDeviceBtn").addEventListener("click", onResetDeviceClick);
+  document.getElementById("refreshInquiriesBtn").addEventListener("click", loadInquiries);
 
   renderSummary();
   renderTable();
+  loadInquiries();
+}
+
+/**
+ * 문의함 목록을 서버에서 가져와서 그린다.
+ */
+async function loadInquiries() {
+  const body = document.getElementById("inquiryBody");
+  if (!body) return;
+  body.innerHTML = `<tr><td colspan="5" class="empty-row">불러오는 중…</td></tr>`;
+
+  try {
+    const password = getSavedPassword();
+    const result = await callServer("adminGetInquiries", { password });
+
+    if (!result.success) {
+      body.innerHTML = `<tr><td colspan="5" class="empty-row">${escapeHtml(result.error)}</td></tr>`;
+      return;
+    }
+
+    if (result.rows.length === 0) {
+      body.innerHTML = `<tr><td colspan="5" class="empty-row">접수된 문의가 없습니다.</td></tr>`;
+      return;
+    }
+
+    body.innerHTML = result.rows
+      .map((r) => {
+        const isResolved = r.status === "완료";
+        const badgeClass = isResolved ? "present" : "pending";
+
+        const answerArea = r.answer
+          ? `<div style="margin-top:6px; font-size:12px; color:var(--accent);">↳ 답변: ${escapeHtml(r.answer)}</div>`
+          : `
+            <div style="display:flex; gap:6px; margin-top:6px;">
+              <input type="text" class="reply-input" data-row="${r.rowIndex}" placeholder="답변 입력…" style="flex:1; border:1px solid var(--line); border-radius:8px; padding:6px 8px; font-size:12px;" />
+              <button class="btn-small reply-btn" data-row="${r.rowIndex}">답변 보내기</button>
+            </div>
+          `;
+
+        return `
+          <tr>
+            <td>${escapeHtml(r.time)}</td>
+            <td>${escapeHtml(r.studentId)}</td>
+            <td style="white-space:normal; max-width:320px;">
+              ${escapeHtml(r.content)}
+              ${answerArea}
+            </td>
+            <td><span class="badge ${badgeClass}">${escapeHtml(r.status)}</span></td>
+            <td>
+              ${isResolved ? "" : `<button class="btn-small resolve-btn" data-row="${r.rowIndex}">완료로만 표시</button>`}
+            </td>
+          </tr>
+        `;
+      })
+      .join("");
+
+    document.querySelectorAll(".resolve-btn").forEach((btn) => {
+      btn.addEventListener("click", () => resolveInquiry(Number(btn.dataset.row)));
+    });
+
+    document.querySelectorAll(".reply-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const rowIndex = Number(btn.dataset.row);
+        const input = document.querySelector(`.reply-input[data-row="${rowIndex}"]`);
+        replyToInquiry(rowIndex, input.value.trim());
+      });
+    });
+  } catch (err) {
+    body.innerHTML = `<tr><td colspan="5" class="empty-row">네트워크 오류가 발생했습니다.</td></tr>`;
+  }
+}
+
+async function replyToInquiry(rowIndex, answer) {
+  if (!answer) {
+    alert("답변 내용을 입력해주세요.");
+    return;
+  }
+  try {
+    const password = getSavedPassword();
+    const result = await callServer("adminReplyInquiry", { password, rowIndex, answer });
+    if (result.success) {
+      loadInquiries();
+    } else {
+      alert(result.error);
+    }
+  } catch (err) {
+    alert("네트워크 오류가 발생했습니다.");
+  }
+}
+
+async function resolveInquiry(rowIndex) {
+  try {
+    const password = getSavedPassword();
+    const result = await callServer("adminResolveInquiry", { password, rowIndex });
+    if (result.success) {
+      loadInquiries();
+    } else {
+      alert(result.error);
+    }
+  } catch (err) {
+    alert("네트워크 오류가 발생했습니다.");
+  }
+}
+
+/**
+ * 관리자가 학번을 입력하고 "기기 초기화"를 누르면,
+ * 그 학번의 등록된 기기를 비활성화해서 재등록이 가능하게 만든다.
+ * (학생이 브라우저 데이터가 지워져서 못 들어올 때 선생님이 빠르게 풀어주는 용도)
+ */
+async function onResetDeviceClick() {
+  const input = document.getElementById("resetStudentIdInput");
+  const msg = document.getElementById("resetResultMsg");
+  const studentId = input.value.trim();
+
+  if (!studentId) {
+    msg.textContent = "학번을 입력해주세요.";
+    msg.style.color = "var(--alert)";
+    return;
+  }
+
+  msg.textContent = "처리 중…";
+  msg.style.color = "var(--muted)";
+
+  try {
+    const password = getSavedPassword();
+    const result = await callServer("adminResetDevice", { password, studentId });
+    if (!result.success) {
+      msg.textContent = result.error;
+      msg.style.color = "var(--alert)";
+      return;
+    }
+    msg.textContent = studentId + "번 기기 초기화 완료. 학생이 다시 등록할 수 있습니다.";
+    msg.style.color = "var(--accent)";
+    input.value = "";
+  } catch (err) {
+    msg.textContent = "네트워크 오류가 발생했습니다.";
+    msg.style.color = "var(--alert)";
+  }
 }
 
 async function onDateChange(e) {
