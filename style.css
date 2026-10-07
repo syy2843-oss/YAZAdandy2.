@@ -3,8 +3,8 @@
    컨셉: 차분하게 집중하는 자습실의 기록부
    ========================================= */
 
-@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css");
-@import url("https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap");
+/* 폰트는 이제 각 HTML 파일의 <head>에서 <link>로 미리 불러옵니다
+   (CSS @import는 순차적으로 로딩돼서 느려지므로 병렬 로딩을 위해 옮김) */
 
 :root {
   --ink: #14213d;         /* 진한 잉크 남색 - 헤더/포커스 */
@@ -493,4 +493,19 @@ html, body {
 
 .inquiry-link:active {
   background: var(--paper);
+}
+
+/* ---- 새 답변 도착 알림 배너 ---- */
+.answer-banner {
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+  padding: 12px 16px;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent);
+  border-radius: 14px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  cursor: pointer;
 }
